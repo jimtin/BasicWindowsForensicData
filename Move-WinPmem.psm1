@@ -13,7 +13,7 @@ function Move-WinPmem{
     )
 
     # Move WinPMEM Across
-    $outcome = Copy-Item -Path .\winpmem_1.6.2.exe -Destination C:\PerformanceInformation\mem_info.exe -ToSession $Session
+    $outcome = Copy-Item -Path .\winpmem_1.6.2.exe -Destination "C:\PerformanceInformation\mem_info.exe" -ToSession $Session
     
     # Return the outcome
     Write-Output $outcome

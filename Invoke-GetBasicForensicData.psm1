@@ -28,13 +28,27 @@ function Invoke-GetBasicForensicData{
     # Check remote session has been created
     if ($remotesession -ne $null){
         $foresnicdatarecord.Add("SetupRemoteSession", (Get-Date).ToString())
-        # Create the folder on the endpoint to place WinPMEM
-        Invoke-Command -Session $remotesession -ScriptBlock{New-Item -Path "C:\" -Name "PerformanceInformation" -ItemType "directory"}
+        # Test the endpoint to see if the Performance Information folder exists
+        $pathexists = Invoke-Command -Session $remotesession -ScriptBlock{Test-Path -Path "C:\PerformanceInformation"}
+        if ($pathexists -eq $false){
+            # Create the folder on the endpoint to place WinPMEM
+            Invoke-Command -Session $remotesession -ScriptBlock{New-Item -Path "C:\" -Name "PerformanceInformation" -ItemType "directory"}
+        }else{
+            Write-Information -InformationAction Continue -MessageData "Endpoint path exists, continuing"
+        }
+        
         # Transfer WinPMEM. Folder location is C:\PerformanceInformation\mem_info.exe
         Write-Information -InformationAction Continue -MessageData "Transferring WinPmem"
         Move-WinPMEM -Session $remotesession
         # Get the targets name and dump a copy of raw memory
         Invoke-MemoryDump -Session $remotesession
+
+        # Create an SMBShare to retrieve memory dump
+        New-RemoteSMBShare -Session $remotesession -Target $Target
+
+        # Delete Artefacts
+        Write-Information -InformationAction Continue -MessageData "Deleting Artefacts"
+        #Invoke-ArtefactCleanup -Session $remotesession
     }else{
         Write-Information -InformationAction Continue -MessageData "Remote session not created"
         $foresnicdatarecord.Add("SetupRemoteSession", "Failed")
