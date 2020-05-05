@@ -16,6 +16,8 @@ function Invoke-MemoryDump{
     $outcome = @{}
     # Test that WinPMEM exists
     $mem_info = Invoke-Command -Session $Session -ScriptBlock{Test-Path -LiteralPath "C:\PerformanceInformation\mem_info.exe"}
+    $outcome.Add("TestedForWinPMEMTimestamp", (Get-Date).ToString())
+    $outcome.Add("TestedForWinPMEMOutcome", $mem_info)
     # Compute that we have enough space
     $spaceneeds = Invoke-Command -Session $Session -ScriptBlock {
         # Get the total physical memory size 
@@ -28,6 +30,8 @@ function Invoke-MemoryDump{
         $outcome.Add("FreeDiskSpace", $disk)
         Write-Output $outcome
     }
+    $outcome.Add("SpaceNeedsComputeTimestamp", (Get-Date).ToString())
+    $outcome.Add("SpaceNeedsOutcome", $spaceneeds)
 
     if ($spaceneeds.FreeDiskSpace -gt $spaceneeds.MemorySize){
         Write-Information -InformationAction Continue -MessageData "Endpoint has enough space"

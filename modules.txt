@@ -6,4 +6,4 @@
 .\Invoke-ArtefactCleanup.psm1
 .\Get-MemoryDump.psm1
 .\Copy-RemoteEventLogs.psm1
-.\Get-RemoteEventLogs.psm1
+.\Get-RemoteEventLogFolder.psm1

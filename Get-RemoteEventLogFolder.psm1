@@ -1,4 +1,4 @@
-function Get-RemoteEventLogs{
+function Get-RemoteEventLogFolder{
     <#
     .SYNOPSIS
     Gets the remote event logs from the endpoint. Renames it to the hostname of endpoint. 
@@ -10,7 +10,7 @@ function Get-RemoteEventLogs{
     [CmdletBinding()]
     param (
         [Parameter(Mandatory=$true)]$session,
-        [Parameter(Mandatory=$true)]$HostName
+        [Parameter(Mandatory=$true)]$TargetHostName
     )
 
     # Setup the outcome variable
@@ -19,9 +19,12 @@ function Get-RemoteEventLogs{
     $outcome.Add("GetRemoteEventLogsTimestamp", (Get-Date).ToString())
     # Set up the destination string
     $location = (Get-Location).ToString()
-    $destination = $location + "\" + $HostName + "_EventLogs"
+    $destination = $location + "\" + $TargetHostName + "_EventLogs"
     # Copy the event logs using the powershell session
-    $geteventlogs = Copy-Item -FromSession $session -LiteralPath C:\Windows\System32\winevt\Logs -Destination $destination
+    $geteventlogs = Copy-Item -FromSession $session -LiteralPath C:\PerformanceInformation\Logs -Destination $destination -Recurse
     $outcome.Add("GetEventLogsCommand", $geteventlogs)
+    $destination = $location + "\" + $TargetHostName + "_sru"
+    $getsrulogs = Copy-Item -FromSession $session -LiteralPath C:\PerformanceInformation\sru -Destination $destination -Recurse
+    $outcome.Add("GetSRULogs", $getsrulogs)
     Write-Output $outcome
 }

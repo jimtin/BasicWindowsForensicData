@@ -15,14 +15,23 @@ function Invoke-ArtefactCleanup{
         $Session
     )
 
+    # Set up outcome dictionary
+    $outcome = @{}
+    # Get timestamp of command being run
+    $outcome.Add("InvokeArtefactCleanupTimestamp", (Get-Date).ToString())
     # First test the folder exists
     $pathexists = Invoke-Command -Session $Session -ScriptBlock{Test-Path -Path "C:\PerformanceInformation"}
+
     # Clean up the folder
     if ($pathexists -eq $true){
-        Invoke-Command -Session $Session -ScriptBlock{Remove-Item -Path "C:\PerformanceInformation" -Recurse -Force}
+        $outcome.Add("InvokeArtefactCleanupTimestamp", (Get-Date).ToString())
+        $cleanupcommand = Invoke-Command -Session $Session -ScriptBlock{Remove-Item -Path "C:\PerformanceInformation" -Recurse -Force}
+        $outcome.Add("InvokeArtefactCleanupTimestamp", $cleanupcommand)
     }
-
+    
+    $outcome.Add("SessionRemovedTimestamp", (Get-Date).ToString())
+    $outcome.Add("SessionDetails", $Session)
     # Remove the session
     Remove-PSSession -Session $Session
-
+    Write-Output $outcome
 }

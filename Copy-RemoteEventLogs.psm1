@@ -11,19 +11,23 @@ function Copy-RemoteEventLogs{
     param (
         [Parameter(Mandatory=$true)]$session
     )
-
+    # Setup overall outcome variable
+    $outcome = @{}
+    # Get the timestamp of the command being run
+    $outcome.Add("CopyRemoteEventLogsTimestamp", (Get-Date).ToString())
     $copylog = Invoke-Command -Session $session -ScriptBlock{
         # Set up the outcome dictionary
         $outcome = @{}
-        # Get the timestamp of the command being run
-        $outcome.Add("CopyEventLogTimestamp", (Get-Date).ToString())
         # Copy item
-        $copyitem = Copy-Item -LiteralPath C:\Windows\System32\winevt\Logs -Destination C:\PerformanceInformation
+        $copyitem = Copy-Item -LiteralPath C:\Windows\System32\winevt\Logs -Destination C:\PerformanceInformation -Recurse
         $outcome.Add("EventLogCopy", $copyitem)
+        $copysru = Copy-Item -LiteralPath C:\Windows\System32\sru -Destination C:\PerformanceInformation -Recurse
+        $outcome.Add("SRULogCopy", $copysru)
         # Return results
         Write-Output $outcome
     }
-
-    Write-Output $copylog
-
+    # Add the output from this command to the outcome variable
+    $outcome.Add("CopyRemoteEventLogsOutput", $copylog)
+    # Return outcome from this command
+    Write-Output $outcome
 }
