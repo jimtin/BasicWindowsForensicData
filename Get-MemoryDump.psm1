@@ -9,10 +9,14 @@ function Get-MemoryDump{
     #>
     [CmdletBinding()]
     param (
-        $session,
-        $SMBShare
+        [Parameter(Mandatory=$true)]$session,
+        [Parameter(Mandatory=$true)]$TargetHostname
     )
 
-    
-    
+    # Get the current location
+    $location = (Get-Location).ToString()
+    # Construct the destination string
+    $deststring = $location + "\" + $TargetHostname + ".raw"
+    $copyitem = Copy-Item -FromSession $session -Path C:\PerformanceInformation\memory.raw -Destination $deststring
+    Write-Output $copyitem
 }

@@ -1,0 +1,9 @@
+.\Get-CurrentHostDetails.psm1
+.\Get-TargetInformation.psm1
+.\Invoke-GetBasicForensicData.psm1
+.\Move-WinPmem.psm1
+.\Invoke-MemoryDump.psm1
+.\Invoke-ArtefactCleanup.psm1
+.\Get-MemoryDump.psm1
+.\Copy-RemoteEventLogs.psm1
+.\Get-RemoteEventLogs.psm1
