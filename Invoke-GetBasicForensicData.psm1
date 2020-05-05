@@ -78,7 +78,7 @@ function Invoke-GetBasicForensicData{
     $outcomejson = $outcome | ConvertTo-Json
     # Store in a file
     $location = (Get-Location).tostring()
-    $filelocation = $location "\" + $targetinfo.HostName + "_CommandHistory.json"
+    $filelocation = $location + "\" + $targetinfo.HostName + "_CommandHistory.json"
     $outcomejson | Out-File $filelocation
     
     Write-Output $outcome    
