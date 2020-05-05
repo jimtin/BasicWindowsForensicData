@@ -17,8 +17,6 @@ function Invoke-ArtefactCleanup{
 
     # Set up outcome dictionary
     $outcome = @{}
-    # Get timestamp of command being run
-    $outcome.Add("InvokeArtefactCleanupTimestamp", (Get-Date).ToString())
     # First test the folder exists
     $pathexists = Invoke-Command -Session $Session -ScriptBlock{Test-Path -Path "C:\PerformanceInformation"}
 
