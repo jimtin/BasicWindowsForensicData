@@ -24,7 +24,7 @@ function Invoke-ArtefactCleanup{
     if ($pathexists -eq $true){
         $outcome.Add("InvokeArtefactCleanupTimestamp", (Get-Date).ToString())
         $cleanupcommand = Invoke-Command -Session $Session -ScriptBlock{Remove-Item -Path "C:\PerformanceInformation" -Recurse -Force}
-        $outcome.Add("InvokeArtefactCleanupTimestamp", $cleanupcommand)
+        $outcome.Add("InvokeArtefactCleanupOutcome", $cleanupcommand)
     }
     
     $outcome.Add("SessionRemovedTimestamp", (Get-Date).ToString())
