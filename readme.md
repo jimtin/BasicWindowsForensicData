@@ -78,8 +78,8 @@ Steps to run after install:
 
 1. Set up your target(s) variable. For instance `$target = "127.0.0.1"`
 
-a. If you are using Kerberos, you will need to use a hostname
-b. If you wish to undertake this action on multiple machines, you can make this a list: `$target = [ComputerOne, ComputerTwo]`
+- If you are using Kerberos, you will need to use a hostname
+- If you wish to undertake this action on multiple machines, you can make this a list: `$target = [ComputerOne, ComputerTwo]`
 
 2. Set up your credentials. This is your call, but if you wish to use this on multiple machines, I recommend you use the secure string created by the `Get-Credential` cmdlet (details here: <https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.security/get-credential?view=powershell-7).> For instance: `$cred = Get-Credential`
 3. Assuming you have set up your remote powershell usage (including updating the registry key with the machines allowed), run the following command: `Invoke-GetBasicForensicData -Target $target -Credential $cred`
