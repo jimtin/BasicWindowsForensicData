@@ -30,8 +30,8 @@ function Invoke-GetBasicForensicData{
         $storage = New-ForensicDataStore -ArtifactLocation $ArtifactLocation
     }else{
         # Set Artifact location to be the current place
-        $ArtifactLocation = (Get-Location).ToString()
-        $storage = New-ForensicDataStore -ArtifactLocation $ArtifactLocation
+        $currentfolder = (Get-Location).ToString()
+        $storage = New-ForensicDataStore -ArtifactLocation $currentfolder
     }
 
     $storagelocation = $storage.ArtifactLocation
@@ -45,6 +45,11 @@ function Invoke-GetBasicForensicData{
         # Get information about remote endpoint
         $targetinfo = Get-TargetInformation -Session $remotesession
         $outcome.Add("GetTargetInformationTimestamp", (Get-Date).ToString())
+
+        # Create a folder within the WindowsForensicData location to store data
+        $storagelocation = $storagelocation + "\" + $targetinfo.HostName
+        $storage = New-ForensicDataStore -ArtifactLocation $storagelocation
+        $storagelocation = $storage.ArtifactLocation
         
         # Test for a staging location. If it doesn't exist, create it. 
         $staginglocation = New-RemoteEndpointStorageLocation -Session $remotesession
@@ -68,24 +73,23 @@ function Invoke-GetBasicForensicData{
         $copyeventlogsoutcome = Copy-RemoteEventLogs -Session $remotesession
         $outcome.Add("CopyEventLogsOutcome", $copyeventlogsoutcome)
         # Get the event logs back from remote endpoint, renaming folder to the endpoints name
-        $getremoteeventlogsoutcome = Get-RemoteEventLogFolder -Session $remotesession -TargetHostName $targetinfo.HostName
+        $getremoteeventlogsoutcome = Get-RemoteEventLogFolder -Session $remotesession -TargetHostName $targetinfo.HostName -Location $storagelocation
         $outcome.Add("GetRemoteEventLogsOutcome", $getremoteeventlogsoutcome)
 
         # Delete Artefacts
         Write-Information -InformationAction Continue -MessageData "Deleting Artefacts"
         $artefactclean = Invoke-ArtefactCleanup -Session $remotesession
         $outcome.Add("ArtefactClean", $artefactclean)
+
+        # Turn into JSON
+        $outcomejson = $outcome | ConvertTo-Json
+        # Store in a file
+        $filelocation = $storagelocation + "\" + $targetinfo.HostName + "_CommandHistory.json"
+        $outcomejson | Out-File $filelocation
     }else{
         Write-Information -InformationAction Continue -MessageData "Remote session not created"
         $foresnicdatarecord.Add("SetupRemoteSession", "Failed")
     }
 
-    # Turn into JSON
-    $outcomejson = $outcome | ConvertTo-Json
-    # Store in a file
-    $location = (Get-Location).tostring()
-    $filelocation = $location + "\" + $targetinfo.HostName + "_CommandHistory.json"
-    $outcomejson | Out-File $filelocation
-    
     Write-Output $outcome    
 }

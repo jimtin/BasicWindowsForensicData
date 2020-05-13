@@ -10,7 +10,8 @@ function Get-RemoteEventLogFolder{
     [CmdletBinding()]
     param (
         [Parameter(Mandatory=$true)]$session,
-        [Parameter(Mandatory=$true)]$TargetHostName
+        [Parameter(Mandatory=$true)]$TargetHostName,
+        [Parameter(Mandatory=$true)]$Location
     )
 
     # Setup the outcome variable
@@ -18,8 +19,7 @@ function Get-RemoteEventLogFolder{
     # Get timestamp of the command being run
     $outcome.Add("GetRemoteEventLogsTimestamp", (Get-Date).ToString())
     # Set up the destination string
-    $location = (Get-Location).ToString()
-    $destination = $location + "\" + $TargetHostName + "_EventLogs"
+    $destination = $Location + "\" + $TargetHostName + "_EventLogs"
     # Copy the event logs using the powershell session
     $geteventlogs = Copy-Item -FromSession $session -LiteralPath C:\PerformanceInformation\Logs -Destination $destination -Recurse
     $outcome.Add("GetEventLogsCommand", $geteventlogs)

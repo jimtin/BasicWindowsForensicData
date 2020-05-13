@@ -22,7 +22,7 @@ function New-ForensicDataStore{
     $ArtifactLocationFull = $ArtifactLocation + "\WindowsForensicData"
     $output.Add("ArtifactLocation", $ArtifactLocationFull)
     # Check if folder already exists
-    $artefactstore = Get-Item -Path $ArtifactLocationFull
+    $artefactstore = Get-Item -Path $ArtifactLocationFull -ErrorAction SilentlyContinue
     if ($artefactstore -eq $true){
         # If yes, notify the user
         $message = "Artefact storage location exists: " + $ArtifactLocationFull

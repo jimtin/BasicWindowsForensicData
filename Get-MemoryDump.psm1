@@ -1,16 +1,16 @@
 function Get-MemoryDump{
     <#
     .SYNOPSIS
-    Gets the memory dump from the remote endpoint using SMB
+    Gets the memory dump from the remote endpoint using a Powershell Session
 
     .DESCRIPTION
-    Retrieves the memory dump using the SMB Share created 
+    Retrieves the memory dump using a Powershell Session
     
     #>
     [CmdletBinding()]
     param (
         [Parameter(Mandatory=$true)]$session,
-        [Parameter(Mandatory=$true)]$TargetHostname, 
+        [Parameter(Mandatory=$true)]$TargetHostName, 
         [Parameter(Mandatory=$true)]$Location
     )
 
