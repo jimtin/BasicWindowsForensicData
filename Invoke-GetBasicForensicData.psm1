@@ -12,7 +12,8 @@ function Invoke-GetBasicForensicData{
     [CmdletBinding()]
     param (
         [Parameter(Mandatory=$true)]$Target, 
-        [Parameter(Mandatory=$true)][System.Management.Automation.PSCredential]$Credential 
+        [Parameter(Mandatory=$true)][System.Management.Automation.PSCredential]$Credential,
+        [Parameter]$ArtifactLocation
     )
 
     # Set a variable to store the commands, their timestamp. This allows for forensic reporting to occur
@@ -24,6 +25,17 @@ function Invoke-GetBasicForensicData{
     # Set up the output dictionary
     $outcome = @{}
 
+    # Set up output folder for forensic artifacts based upon user input
+    if ($ArtifactLocation){
+        $storage = New-ForensicDataStore -ArtifactLocation $ArtifactLocation
+    }else{
+        # Set Artifact location to be the current place
+        $ArtifactLocation = (Get-Location).ToString()
+        $storage = New-ForensicDataStore -ArtifactLocation $ArtifactLocation
+    }
+
+    $storagelocation = $storage.ArtifactLocation
+
     # Set up a PSRemoting session to the endpoint. This could also have used a straight Invoke-Command object, but this method reduces noise on the network
     Write-Information -InformationAction Continue -MessageData "Setting up Remote Session"
     $remotesession = New-PSSession -ComputerName $Target -Credential $Credential
@@ -33,16 +45,10 @@ function Invoke-GetBasicForensicData{
         # Get information about remote endpoint
         $targetinfo = Get-TargetInformation -Session $remotesession
         $outcome.Add("GetTargetInformationTimestamp", (Get-Date).ToString())
-        # Test the endpoint to see if the Performance Information folder exists
-        $pathexists = Invoke-Command -Session $remotesession -ScriptBlock{Test-Path -Path "C:\PerformanceInformation"}
-        $outcome.Add("TestedEndpointTimestamp", (Get-Date).ToString())
-        if ($pathexists -eq $false){
-            # Create the folder on the endpoint to place WinPMEM
-            Invoke-Command -Session $remotesession -ScriptBlock{New-Item -Path "C:\" -Name "PerformanceInformation" -ItemType "directory"}
-            $outcome.Add("CreatedPerformanceInformationFolderTimestamp", (Get-Date).ToString())
-        }else{
-            Write-Information -InformationAction Continue -MessageData "Endpoint path exists, continuing"
-        }
+        
+        # Test for a staging location. If it doesn't exist, create it. 
+        $staginglocation = New-RemoteEndpointStorageLocation -Session $remotesession
+        $outcome.Add("StagingLocation", $staginglocation)
         
         # Transfer WinPMEM. Folder location is C:\PerformanceInformation\mem_info.exe
         Write-Information -InformationAction Continue -MessageData "Transferring WinPmem"
@@ -55,7 +61,7 @@ function Invoke-GetBasicForensicData{
 
         # Copy the Memory Dump to this computer, renaming to the hostname to enable easy tracking
         Write-Information -InformationAction Continue -MessageData "Copying remote memory file. Note, file will be renamed to <endpoint>.raw"
-        $GetMemDumpOutcome = Get-MemoryDump -Session $remotesession -TargetHostName $targetinfo.HostName
+        $GetMemDumpOutcome = Get-MemoryDump -Session $remotesession -TargetHostName $targetinfo.HostName -Location $storagelocation
         $outcome.Add("GetMemoryDumpOutcome", $GetMemDumpOutcome)
 
         # Copy the event logs from remote endpoint into the PerformanceInformation folder

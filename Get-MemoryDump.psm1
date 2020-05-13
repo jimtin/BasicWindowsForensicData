@@ -10,16 +10,15 @@ function Get-MemoryDump{
     [CmdletBinding()]
     param (
         [Parameter(Mandatory=$true)]$session,
-        [Parameter(Mandatory=$true)]$TargetHostname
+        [Parameter(Mandatory=$true)]$TargetHostname, 
+        [Parameter(Mandatory=$true)]$Location
     )
 
     # Set up the outcome dictionary
     $outcome = @{}
     $outcome.Add("GetMemoryDumpTimestamp", (Get-Date).ToString())
-    # Get the current location
-    $location = (Get-Location).ToString()
     # Construct the destination string
-    $deststring = $location + "\" + $TargetHostname + ".raw"
+    $deststring = $Location + "\" + $TargetHostname + ".raw"
     $copyitem = Copy-Item -FromSession $session -Path C:\PerformanceInformation\memory.raw -Destination $deststring
     $outcome.Add("GetMemoryDumpOutcome", $copyitem)
     Write-Output $outcome
