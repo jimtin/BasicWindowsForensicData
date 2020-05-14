@@ -50,6 +50,7 @@ function Invoke-GetBasicForensicData{
         $storagelocation = $storagelocation + "\" + $targetinfo.HostName
         $storage = New-ForensicDataStore -ArtifactLocation $storagelocation
         $storagelocation = $storage.ArtifactLocation
+        $outcome.Add("StorageLocation", $storagelocation)
         
         # Test for a staging location. If it doesn't exist, create it. 
         $staginglocation = New-RemoteEndpointStorageLocation -Session $remotesession

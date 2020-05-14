@@ -9,3 +9,4 @@
 .\Get-RemoteEventLogFolder.psm1
 .\New-ForensicDataStore.psm1
 .\New-RemoteEndpointStorageLocation.psm1
+.\Compress-ForensicData.psm1
